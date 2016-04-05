@@ -2,6 +2,7 @@ use num::Integer;
 
 use program::Program;
 use command::Command;
+use stack::Stack;
 
 #[derive(Debug, Copy, Clone)]
 enum DirectionPointer {
@@ -54,7 +55,7 @@ pub struct Interpreter {
     program: Program,
     dp: DirectionPointer,
     cc: CodelChooser,
-    stack: Vec<i64>,
+    stack: Stack,
     position: (usize, usize),
 }
 
@@ -64,7 +65,7 @@ impl Interpreter {
             program: program,
             dp: DirectionPointer::Right,
             cc: CodelChooser::Left,
-            stack: Vec::new(),
+            stack: Stack::new(),
             position: (0, 0),
         }
     }
@@ -88,23 +89,23 @@ impl Interpreter {
             }
 
             Command::Add => {
-                self.combine_and_push(|a, b| a + b);
+                self.stack.fold_top(|b, a| a + b);
             }
 
             Command::Subtract => {
-                self.combine_and_push(|a, b| a - b);
+                self.stack.fold_top(|b, a| a * b);
             }
 
             Command::Multiply => {
-                self.combine_and_push(|a, b| a * b);
+                self.stack.fold_top(|b, a| a - b);
             }
 
             Command::Divide => {
-                self.combine_and_push(|a, b| a / b);
+                self.stack.fold_top(|b, a| a / b);
             }
 
             Command::Mod => {
-                self.combine_and_push(|a, b| a.mod_floor(&b));
+                self.stack.fold_top(|b, a| a.mod_floor(&b));
             }
 
             Command::Not => {
@@ -118,7 +119,7 @@ impl Interpreter {
             }
 
             Command::Greater => {
-                self.combine_and_push(|a, b| {
+                self.stack.fold_top(|b, a| {
                     if a > b {
                         1
                     } else {
@@ -184,38 +185,6 @@ impl Interpreter {
     fn switch(&mut self, times: i64) {
         for _ in 0..times {
             self.cc.switch();
-        }
-    }
-
-    fn roll(&mut self, depth: usize, times: i64) {
-        if depth < 0 || depth >= self.stack.len() {
-            return;
-        }
-
-        let index = self.stack.len() - depth;
-
-        if times >= 0 {
-            for _ in 0..times {
-                let value = self.stack.pop().unwrap();
-                // We can unwrap here, because if the stack is empty, the depth
-                // is always larger than the length, so there would be an
-                // early return.
-
-                self.stack.insert(index, value);
-            }
-        } else {
-            for _ in 0..times.abs() {
-                let value = self.stack.swap_remove(index);
-                self.stack.push(value);
-            }
-        }
-    }
-
-    fn combine_and_push<F>(&mut self, combine: F)
-        where F: Fn(i64, i64) -> i64
-    {
-        if let (Some(b), Some(a)) = (self.stack.pop(), self.stack.pop()) {
-            self.stack.push(combine(a, b));
         }
     }
 }

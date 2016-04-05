@@ -8,3 +8,4 @@ mod color;
 mod command;
 mod interpreter;
 mod program;
+mod stack;
