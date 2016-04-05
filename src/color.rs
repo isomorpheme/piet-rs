@@ -1,7 +1,7 @@
 use num::Integer;
 
 /// A color's hue.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Hue {
     Red,
     Yellow,
@@ -29,7 +29,7 @@ impl Hue {
 }
 
 /// A color's lightness.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Lightness {
     Light,
     Normal,
@@ -54,7 +54,7 @@ impl Lightness {
 }
 
 /// A color, as interpreted by Piet.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Color {
     Composite(Hue, Lightness),
     Black,
@@ -62,6 +62,59 @@ pub enum Color {
 }
 
 impl Color {
+    /// Create a color from an RGB triplet.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use piet::Color;
+    /// use piet::Hue::*;
+    /// use piet::Lightness::*;
+    ///
+    /// let color = Color::from_rgb(0xc0, 0xc0, 0xff);
+    /// assert_eq!(color, Color::Composite(Blue, Light));
+    /// ```
+    pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+        use Hue::*;
+        use Lightness::*;
+        use Color::*;
+
+        let (r, g, b) = (r as u32, g as u32, b as u32);
+
+        let color: u32 = (((r << 8) | g) << 8) | b;
+
+        match color {
+            0xffc0c0 => Composite(Red, Light),
+            0xffffc0 => Composite(Yellow, Light),
+            0xc0ffc0 => Composite(Green, Light),
+            0xc0ffff => Composite(Cyan, Light),
+            0xc0c0ff => Composite(Blue, Light),
+            0xffc0ff => Composite(Magenta, Light),
+
+            0xff0000 => Composite(Red, Normal),
+            0xffff00 => Composite(Yellow, Normal),
+            0x00ff00 => Composite(Green, Normal),
+            0x00ffff => Composite(Cyan, Normal),
+            0x0000ff => Composite(Blue, Normal),
+            0xff00ff => Composite(Magenta, Normal),
+
+            0xc00000 => Composite(Red, Dark),
+            0xc0c000 => Composite(Yellow, Dark),
+            0x00c000 => Composite(Green, Dark),
+            0x00c0c0 => Composite(Cyan, Dark),
+            0x0000c0 => Composite(Blue, Dark),
+            0xc000c0 => Composite(Magenta, Dark),
+
+            0xffffff => White,
+            0x000000 => Black,
+
+            _ => White,
+
+            // TODO: maybe make the fallback color configurable? Or even find
+            // the nearest color, and create a `Composite` based on that.
+        }
+    }
+
     /// Calculate the transition between two colors.
     ///
     /// # Returns
@@ -121,6 +174,24 @@ mod tests {
         assert_eq!(Lightness::shift(Light, Dark), 2);
         assert_eq!(Lightness::shift(Dark, Light), 1);
         assert_eq!(Lightness::shift(Dark, Normal), 2);
+    }
+
+    #[test]
+    fn test_color_from_rgb() {
+        use super::Hue::*;
+        use super::Lightness::*;
+
+        let color = Color::from_rgb(0x00, 0x00, 0x00);
+        assert_eq!(color, Color::Black);
+
+        let color = Color::from_rgb(0xff, 0xff, 0xff);
+        assert_eq!(color, Color::White);
+
+        let color = Color::from_rgb(0x12, 0x34, 0x56);
+        assert_eq!(color, Color::White);
+
+        let color = Color::from_rgb(0x00, 0xff, 0x00);
+        assert_eq!(color, Color::Composite(Green, Normal));
     }
 
     #[test]
