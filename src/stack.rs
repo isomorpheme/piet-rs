@@ -1,5 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
+#[derive(Debug, PartialEq)]
 pub struct Stack(Vec<i64>);
 
 impl Stack {
@@ -22,8 +23,13 @@ impl Stack {
     pub fn fold_top<F>(&mut self, function: F)
         where F: Fn(i64, i64) -> i64
     {
-        if let (Some(first), Some(second)) = self.pop2() {
-            self.push(function(first, second));
+        match self.pop2() {
+            (Some(first), Some(second)) => {
+                self.push(function(first, second));
+            }
+
+            (Some(first), None) => self.push(first),
+            _ => {}
         }
     }
 
@@ -67,5 +73,80 @@ impl Deref for Stack {
 impl DerefMut for Stack {
     fn deref_mut(&mut self) -> &mut Vec<i64> {
         &mut self.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_stack_new() {
+        assert_eq!(Stack::new(), Stack(Vec::new()));
+    }
+
+    #[test]
+    fn test_stack_peek() {
+        let stack = Stack(vec![1, 2]);
+        assert_eq!(stack.peek(), Some(&2));
+
+        let stack = Stack(vec![1]);
+        assert_eq!(stack.peek(), Some(&1));
+
+        let stack = Stack(vec![]);
+        assert_eq!(stack.peek(), None);
+    }
+
+    #[test]
+    fn test_stack_map_top() {
+        let mut stack = Stack(vec![1, 2]);
+        stack.map_top(|_| 42);
+        assert_eq!(stack, Stack(vec![1, 42]));
+
+        let mut stack = Stack(vec![1]);
+        stack.map_top(|_| 42);
+        assert_eq!(stack, Stack(vec![42]));
+
+        let mut stack = Stack(vec![]);
+        stack.map_top(|_| 42);
+        assert_eq!(stack, Stack(vec![]));
+    }
+
+    #[test]
+    fn test_stack_fold_top() {
+        let mut stack = Stack(vec![1, 4, 6]);
+        stack.fold_top(|a, b| a - b);
+        assert_eq!(stack, Stack(vec![1, 2]));
+
+        let mut stack = Stack(vec![1, 3]);
+        stack.fold_top(|a, b| a - b);
+        assert_eq!(stack, Stack(vec![2]));
+
+        let mut stack = Stack(vec![1]);
+        stack.fold_top(|a, b| a - b);
+        assert_eq!(stack, Stack(vec![1]));
+
+        let mut stack = Stack(vec![]);
+        stack.fold_top(|a, b| a - b);
+        assert_eq!(stack, Stack(vec![]));
+    }
+
+    #[test]
+    fn test_stack_pop2() {
+        let mut stack = Stack(vec![1, 2, 3]);
+        assert_eq!(stack.pop2(), (Some(3), Some(2)));
+        assert_eq!(stack, Stack(vec![1]));
+
+        let mut stack = Stack(vec![1, 2]);
+        assert_eq!(stack.pop2(), (Some(2), Some(1)));
+        assert_eq!(stack, Stack(vec![]));
+
+        let mut stack = Stack(vec![1]);
+        assert_eq!(stack.pop2(), (Some(1), None));
+        assert_eq!(stack, Stack(vec![]));
+
+        let mut stack = Stack(vec![]);
+        assert_eq!(stack.pop2(), (None, None));
+        assert_eq!(stack, Stack(vec![]));
     }
 }
