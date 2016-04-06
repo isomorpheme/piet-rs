@@ -42,7 +42,7 @@ impl Stack {
             return;
         }
 
-        let index = self.len() - depth;
+        let index = (self.len() - 1) - depth;
 
         if times >= 0 {
             for _ in 0..times {
@@ -55,7 +55,7 @@ impl Stack {
             }
         } else {
             for _ in 0..times.abs() {
-                let value = self.swap_remove(index);
+                let value = self.remove(index);
                 self.push(value);
             }
         }
@@ -147,6 +147,28 @@ mod tests {
 
         let mut stack = Stack(vec![]);
         assert_eq!(stack.pop2(), (None, None));
+        assert_eq!(stack, Stack(vec![]));
+    }
+     #[test]
+    fn test_stack_roll() {
+        let mut stack = Stack(vec![1, 2, 3, 4]);
+        stack.roll(2, 1);
+        assert_eq!(stack, Stack(vec![1, 4, 2, 3]));
+
+        let mut stack = Stack(vec![1, 2, 3, 4]);
+        stack.roll(2, 2);
+        assert_eq!(stack, Stack(vec![1, 3, 4, 2]));
+
+        let mut stack = Stack(vec![1, 2, 3, 4]);
+        stack.roll(2, -1);
+        assert_eq!(stack, Stack(vec![1, 3, 4, 2]));
+
+        let mut stack = Stack(vec![1, 2, 3, 4]);
+        stack.roll(2, -2);
+        assert_eq!(stack, Stack(vec![1, 4, 2, 3]));
+
+        let mut stack = Stack(vec![]);
+        stack.roll(1, 1);
         assert_eq!(stack, Stack(vec![]));
     }
 }
