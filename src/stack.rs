@@ -8,6 +8,10 @@ impl Stack {
         Stack(Vec::new())
     }
 
+    pub fn from_vec(vec: Vec<i64>) -> Self {
+        Stack(vec)
+    }
+
     pub fn peek(&self) -> Option<&i64> {
         self.last()
     }
