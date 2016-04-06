@@ -1,5 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
+/// A wrapper type around a Vec<i64> to represent Piet's stack.
 #[derive(Debug, PartialEq)]
 pub struct Stack(Vec<i64>);
 
@@ -16,6 +17,7 @@ impl Stack {
         self.last()
     }
 
+    /// Apply a function to the top element on the stack.
     pub fn map_top<F>(&mut self, function: F)
         where F: Fn(i64) -> i64
     {
@@ -24,6 +26,16 @@ impl Stack {
         }
     }
 
+    /// Combine the top two elements of the stack using a function.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use piet::Stack;
+    /// let mut stack = Stack::from_vec(vec![1, 2, 3]);
+    /// stack.fold_top(|a, b| a + b); // a = 3; b = 2
+    /// assert_eq!(stack, Stack::from_vec(vec![1, 5]));
+    /// ```
     pub fn fold_top<F>(&mut self, function: F)
         where F: Fn(i64, i64) -> i64
     {
@@ -37,10 +49,23 @@ impl Stack {
         }
     }
 
+    /// Pop the top 2 elements of the tuple, if present.
     pub fn pop2(&mut self) -> (Option<i64>, Option<i64>) {
         (self.pop(), self.pop())
     }
 
+    /// 'Roll' the range of the stack's values from the top to `depth` deep,
+    /// with `times` repetitions.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use piet::Stack;
+    ///
+    /// let mut stack = Stack::from_vec(vec![1, 2, 3, 4]);
+    /// stack.roll(2, 2);
+    /// assert_eq!(stack, Stack::from_vec(vec![1, 3, 4, 2]));
+    /// ```
     pub fn roll(&mut self, depth: usize, times: i64) {
         if depth >= self.len() {
             return;
@@ -118,6 +143,9 @@ mod tests {
 
     #[test]
     fn test_stack_fold_top() {
+        // We use subtraction to check if the order of the closure's arguments
+        // is correct, because addition is commutative, and subtraction isn't.
+
         let mut stack = Stack(vec![1, 4, 6]);
         stack.fold_top(|a, b| a - b);
         assert_eq!(stack, Stack(vec![1, 2]));
