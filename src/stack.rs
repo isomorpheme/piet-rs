@@ -32,6 +32,7 @@ impl Stack {
     ///
     /// ```
     /// use piet::Stack;
+    ///
     /// let mut stack = Stack::from_vec(vec![1, 2, 3]);
     /// stack.fold_top(|a, b| a + b); // a = 3; b = 2
     /// assert_eq!(stack, Stack::from_vec(vec![1, 5]));
