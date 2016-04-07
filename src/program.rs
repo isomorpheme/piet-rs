@@ -1,42 +1,63 @@
+use std::iter::{Enumerate, Map};
+
 use color::Color;
 
+pub type Coords = (usize, usize);
+
 pub struct Program {
-    size: (usize, usize),
+    size: Coords,
     image: Vec<Color>,
 }
 
 impl Program {
-    pub fn new(size: (usize, usize), image: Vec<Color>) -> Self {
+    pub fn new(size: Coords, image: Vec<Color>) -> Self {
         Program {
             size: (0, 0),
             image: Vec::new(),
         }
     }
 
-    pub fn get(&self, coords: (usize, usize)) -> Option<Color> {
+    pub fn get(&self, coords: Coords) -> Option<Color> {
         coords_to_index(coords, &self.size).map(|index| self.image[index])
     }
 
-    pub fn color_block(&self, coords: (usize, usize)) -> &[Color] {
+    /// Find the coordinates of a contiguous area of codels of the same color,
+    /// starting from a coordinate.
+    ///
+    /// TODO: This implementation is super dumb, and recurses infinitely.
+    /// So fix that.
+    pub fn color_block(&self, coords: Coords) -> Vec<Coords> {
         let color = self.get(coords).unwrap(); // TODO: decide if this needs actual error handling
-        self.neighbors_with_coords(coords)
-            .into_iter()
-            .filter(|&&(_, other)| other == color)
-            .map(|&(c, _)| self.color_block(c));
+        let (x, y) = coords;
 
-        unimplemented!()
+
+        let neighbors = [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)];
+        let valid_neighbors = neighbors.into_iter()
+                                       .map(|&item| item)
+                                       .filter(|&c| self.coords_to_index(c).is_some());
+        // TODO: put the above into a separate function, if needed.
+        // Returning iterators is hard though :(
+
+        let same_color = valid_neighbors.filter(|&c| self.get(c).unwrap() == color);
+
+        let mut result = same_color.map(|c| self.color_block(c))
+                                   .collect::<Vec<_>>()
+                                   .concat();
+        result.push(coords);
+
+        result
     }
 
-    pub fn neighbors(&self, coords: (usize, usize)) -> &[Color] {
-        unimplemented!();
+    fn coords_to_index(&self, coords: Coords) -> Option<usize> {
+        coords_to_index(coords, &self.size)
     }
 
-    pub fn neighbors_with_coords(&self, coords: (usize, usize)) -> &[((usize, usize), Color)] {
-        unimplemented!();
+    fn index_to_coords(&self, index: usize) -> Option<Coords> {
+        index_to_coords(index, &self.size)
     }
 }
 
-fn coords_to_index(coords: (usize, usize), size: &(usize, usize)) -> Option<usize> {
+fn coords_to_index(coords: Coords, size: &(usize, usize)) -> Option<usize> {
     let (x, y) = coords;
     let (width, height) = *size;
 
@@ -47,7 +68,7 @@ fn coords_to_index(coords: (usize, usize), size: &(usize, usize)) -> Option<usiz
     Some(width * y + x % width)
 }
 
-fn index_to_coords(index: usize, size: &(usize, usize)) -> Option<(usize, usize)> {
+fn index_to_coords(index: usize, size: &(usize, usize)) -> Option<Coords> {
     let (width, height) = *size;
 
     if index >= width * height {
@@ -85,5 +106,28 @@ mod tests {
         assert_eq!(index_to_coords(12, &size), Some((2, 2)));
         assert_eq!(index_to_coords(24, &size), Some((4, 4)));
         assert_eq!(index_to_coords(25, &size), None);
+    }
+
+    #[test]
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    fn test_program_color_block() {
+        use super::super::Color::White as W;
+        use super::super::Color::Black as B;
+
+        let program = Program::new((5, 5),
+                                   vec![W, W, W, W, W,
+                                        W, W, W, W, W,
+                                        W, W, B, W, W,
+                                        W, W, W, W, W,
+                                        W, W, W, W, W]);
+        assert_eq!(program.color_block((2, 2)), vec![(2, 2)]);
+
+        let program = Program::new((5, 5),
+                                   vec![W, W, W, W, W,
+                                        W, B, B, B, W,
+                                        W, B, B, B, W,
+                                        W, B, B, B, W,
+                                        W, W, W, W, W]);
+        assert_eq!(program.color_block((2, 2)), vec![(2, 2)]);
     }
 }
