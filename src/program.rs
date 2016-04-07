@@ -6,15 +6,32 @@ pub struct Program {
 }
 
 impl Program {
+    pub fn new(size: (usize, usize), image: Vec<Color>) -> Self {
+        Program {
+            size: (0, 0),
+            image: Vec::new(),
+        }
+    }
+
     pub fn get(&self, coords: (usize, usize)) -> Option<Color> {
         coords_to_index(coords, &self.size).map(|index| self.image[index])
+    }
+
+    pub fn color_block(&self, coords: (usize, usize)) -> &[Color] {
+        let color = self.get(coords).unwrap(); // TODO: decide if this needs actual error handling
+        self.neighbors_with_coords(coords)
+            .into_iter()
+            .filter(|&&(_, other)| other == color)
+            .map(|&(c, _)| self.color_block(c));
+
+        unimplemented!()
     }
 
     pub fn neighbors(&self, coords: (usize, usize)) -> &[Color] {
         unimplemented!();
     }
 
-    pub fn neighbors_with_coords(&self, coords: (usize, usize)) -> &[(usize, usize, Color)] {
+    pub fn neighbors_with_coords(&self, coords: (usize, usize)) -> &[((usize, usize), Color)] {
         unimplemented!();
     }
 }
