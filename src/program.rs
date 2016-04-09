@@ -12,8 +12,8 @@ pub struct Program {
 impl Program {
     pub fn new(size: Coords, image: Vec<Color>) -> Self {
         Program {
-            size: (0, 0),
-            image: Vec::new(),
+            size: size,
+            image: image,
         }
     }
 
