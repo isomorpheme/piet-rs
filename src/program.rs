@@ -55,17 +55,17 @@ impl Program {
     fn index_to_coords(&self, index: usize) -> Option<Coords> {
         index_to_coords(index, &self.size)
     }
+
+    fn check_coords(&self, coords: Coords) -> Option<Coords> {
+        check_coords(coords, &self.size)
+    }
 }
 
 fn coords_to_index(coords: Coords, size: &(usize, usize)) -> Option<usize> {
     let (x, y) = coords;
     let (width, height) = *size;
 
-    if x >= width || y >= height {
-        return None;
-    }
-
-    Some(width * y + x % width)
+    check_coords(coords, size).and(Some(width * y + x % width))
 }
 
 fn index_to_coords(index: usize, size: &(usize, usize)) -> Option<Coords> {
@@ -81,10 +81,21 @@ fn index_to_coords(index: usize, size: &(usize, usize)) -> Option<Coords> {
     Some((x, y))
 }
 
+fn check_coords(coords: Coords, size: &(usize, usize)) -> Option<Coords> {
+    let (x, y) = coords;
+    let (width, height) = *size;
+
+    if x >= width || y >= height {
+        None
+    } else {
+        Some(coords)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::{coords_to_index, index_to_coords};
+    use super::{coords_to_index, index_to_coords, check_coords};
 
     #[test]
     fn test_coords_to_index() {
@@ -106,6 +117,18 @@ mod tests {
         assert_eq!(index_to_coords(12, &size), Some((2, 2)));
         assert_eq!(index_to_coords(24, &size), Some((4, 4)));
         assert_eq!(index_to_coords(25, &size), None);
+    }
+
+    #[test]
+    fn test_check_coords() {
+        let size =(5, 5);
+        assert!(check_coords((0, 0), &size).is_some());
+        assert!(check_coords((4, 0), &size).is_some());
+        assert!(check_coords((0, 4), &size).is_some());
+        assert!(check_coords((4, 4), &size).is_some());
+        assert!(check_coords((5, 4), &size).is_none());
+        assert!(check_coords((4, 5), &size).is_none());
+        assert!(check_coords((5, 5), &size).is_none());
     }
 
     #[test]
