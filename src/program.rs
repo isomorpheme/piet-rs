@@ -19,7 +19,7 @@ impl Program {
     }
 
     pub fn get(&self, coords: Coords) -> Option<Color> {
-        coords_to_index(coords, &self.size).map(|index| self.image[index])
+        self.coords_to_index(coords).map(|index| self.image[index])
     }
 
     /// Find the coordinates of a contiguous area of codels of the same color,
@@ -75,86 +75,73 @@ impl Program {
     }
 
     fn coords_to_index(&self, coords: Coords) -> Option<usize> {
-        coords_to_index(coords, &self.size)
+        let (x, y) = coords;
+        let (width, height) = self.size;
+
+        self.check_coords(coords).and(Some(width * y + x % width))
     }
 
     fn index_to_coords(&self, index: usize) -> Option<Coords> {
-        index_to_coords(index, &self.size)
+        let (width, height) = self.size;
+
+        if index >= width * height {
+            return None;
+        }
+
+        let x = index % width;
+        let y = index / width;
+
+        Some((x, y))
     }
 
     fn check_coords(&self, coords: Coords) -> Option<Coords> {
-        check_coords(coords, &self.size)
-    }
-}
+        let (x, y) = coords;
+        let (width, height) = self.size;
 
-fn coords_to_index(coords: Coords, size: &(usize, usize)) -> Option<usize> {
-    let (x, y) = coords;
-    let (width, height) = *size;
-
-    check_coords(coords, size).and(Some(width * y + x % width))
-}
-
-fn index_to_coords(index: usize, size: &(usize, usize)) -> Option<Coords> {
-    let (width, height) = *size;
-
-    if index >= width * height {
-        return None;
-    }
-
-    let x = index % width;
-    let y = index / width;
-
-    Some((x, y))
-}
-
-fn check_coords(coords: Coords, size: &(usize, usize)) -> Option<Coords> {
-    let (x, y) = coords;
-    let (width, height) = *size;
-
-    if x >= width || y >= height {
-        None
-    } else {
-        Some(coords)
+        if x >= width || y >= height {
+            None
+        } else {
+            Some(coords)
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::{coords_to_index, index_to_coords, check_coords};
 
     #[test]
-    fn test_coords_to_index() {
-        let size = (5, 5);
-        assert_eq!(coords_to_index((0, 0), &size), Some(0));
-        assert_eq!(coords_to_index((2, 0), &size), Some(2));
-        assert_eq!(coords_to_index((0, 2), &size), Some(10));
-        assert_eq!(coords_to_index((2, 2), &size), Some(12));
-        assert_eq!(coords_to_index((4, 4), &size), Some(24));
-        assert_eq!(coords_to_index((5, 5), &size), None);
+    fn test_program_coords_to_index() {
+        let program = Program::new((5, 5), vec![]);
+        assert_eq!(program.coords_to_index((0, 0)), Some(0));
+        assert_eq!(program.coords_to_index((2, 0)), Some(2));
+        assert_eq!(program.coords_to_index((0, 2)), Some(10));
+        assert_eq!(program.coords_to_index((2, 2)), Some(12));
+        assert_eq!(program.coords_to_index((4, 4)), Some(24));
+        assert_eq!(program.coords_to_index((5, 5)), None);
     }
 
     #[test]
-    fn test_index_to_coords() {
-        let size = (5, 5);
-        assert_eq!(index_to_coords(0, &size), Some((0, 0)));
-        assert_eq!(index_to_coords(2, &size), Some((2, 0)));
-        assert_eq!(index_to_coords(10, &size), Some((0, 2)));
-        assert_eq!(index_to_coords(12, &size), Some((2, 2)));
-        assert_eq!(index_to_coords(24, &size), Some((4, 4)));
-        assert_eq!(index_to_coords(25, &size), None);
+    fn test_program_index_to_coords() {
+        let program = Program::new((5, 5), vec![]);
+        assert_eq!(program.index_to_coords(0), Some((0, 0)));
+        assert_eq!(program.index_to_coords(2), Some((2, 0)));
+        assert_eq!(program.index_to_coords(10), Some((0, 2)));
+        assert_eq!(program.index_to_coords(12), Some((2, 2)));
+        assert_eq!(program.index_to_coords(24), Some((4, 4)));
+        assert_eq!(program.index_to_coords(25), None);
     }
 
     #[test]
-    fn test_check_coords() {
-        let size =(5, 5);
-        assert!(check_coords((0, 0), &size).is_some());
-        assert!(check_coords((4, 0), &size).is_some());
-        assert!(check_coords((0, 4), &size).is_some());
-        assert!(check_coords((4, 4), &size).is_some());
-        assert!(check_coords((5, 4), &size).is_none());
-        assert!(check_coords((4, 5), &size).is_none());
-        assert!(check_coords((5, 5), &size).is_none());
+    fn test_program_check_coords() {
+        let program = Program::new((5, 5), vec![]);
+        assert!(program.check_coords((0, 0)).is_some());
+        assert!(program.check_coords((4, 0)).is_some());
+        assert!(program.check_coords((0, 4)).is_some());
+        assert!(program.check_coords((4, 4)).is_some());
+        assert!(program.check_coords((5, 4)).is_none());
+        assert!(program.check_coords((4, 5)).is_none());
+        assert!(program.check_coords((5, 5)).is_none());
     }
 
     #[test]
