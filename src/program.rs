@@ -1,6 +1,7 @@
-use std::iter::{Enumerate, Map};
+use std::collections::HashSet;
 
 use color::Color;
+use util::lift_tuple;
 
 pub type Coords = (usize, usize);
 
@@ -24,28 +25,53 @@ impl Program {
     /// Find the coordinates of a contiguous area of codels of the same color,
     /// starting from a coordinate.
     ///
-    /// TODO: This implementation is super dumb, and recurses infinitely.
-    /// So fix that.
-    pub fn color_block(&self, coords: Coords) -> Vec<Coords> {
-        let color = self.get(coords).unwrap(); // TODO: decide if this needs actual error handling
-        let (x, y) = coords;
+    /// TODO: This implementation is recursive, probably not the most optimal.
+    /// Fix it if necessary. (Or if you've had enough of the terrible code.)
+    /// See also: https://en.wikipedia.org/wiki/Flood_fill
+    pub fn color_block(&self, start_coords: Coords) -> HashSet<Coords> {
+        let mut result = HashSet::new();
 
+        let start_color = self.get(start_coords).unwrap();
+        // TODO: decide if this needs actual error handling
 
-        let neighbors = [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)];
-        let valid_neighbors = neighbors.into_iter()
-                                       .map(|&item| item)
-                                       .filter(|&c| self.coords_to_index(c).is_some());
-        // TODO: put the above into a separate function, if needed.
-        // Returning iterators is hard though :(
-
-        let same_color = valid_neighbors.filter(|&c| self.get(c).unwrap() == color);
-
-        let mut result = same_color.map(|c| self.color_block(c))
-                                   .collect::<Vec<_>>()
-                                   .concat();
-        result.push(coords);
+        self.mark_blocks(start_coords, start_color, &mut result);
 
         result
+    }
+
+    /// The recursive part of `color_block`.
+    fn mark_blocks(&self, coords: Coords, start_color: Color, marked: &mut HashSet<Coords>) {
+        if marked.contains(&coords) {
+            return;
+        }
+
+        if let Some(color) = self.get(coords) {
+            if color != start_color {
+                return;
+            }
+
+            marked.insert(coords);
+
+            let (x, y) = coords; for neighbor in self.neighbors(coords).iter().filter_map(|&x| x) {
+                self.mark_blocks(neighbor, start_color, marked);
+            }
+        }
+    }
+
+    fn neighbors(&self, coords: Coords) -> [Option<Coords>; 4] {
+        let (x, y) = coords;
+
+        let right = lift_tuple((Some(x + 1), Some(y)));
+        let left = lift_tuple((x.checked_sub(1), Some(y)));
+        let above = lift_tuple((Some(x), Some(y + 1)));
+        let below = lift_tuple((Some(x), y.checked_sub(1)));
+
+        // I would have written this with iterators, but AFAIK it's not possible
+        // to `.collect()` into a fixed size array.
+        [right.and_then(|c| self.check_coords(c)),
+         left.and_then(|c| self.check_coords(c)),
+         above.and_then(|c| self.check_coords(c)),
+         below.and_then(|c| self.check_coords(c))]
     }
 
     fn coords_to_index(&self, coords: Coords) -> Option<usize> {
@@ -143,7 +169,15 @@ mod tests {
                                         W, W, B, W, W,
                                         W, W, W, W, W,
                                         W, W, W, W, W]);
-        assert_eq!(program.color_block((2, 2)), vec![(2, 2)]);
+        assert_eq!(program.color_block((2, 2)), vec![(2, 2)].into_iter().collect());
+
+        let program = Program::new((5, 5),
+                                   vec![B, W, W, W, W,
+                                        W, W, W, W, W,
+                                        W, W, W, W, W,
+                                        W, W, W, W, W,
+                                        W, W, W, W, W]);
+        assert_eq!(program.color_block((0, 0)), vec![(0, 0)] .into_iter().collect());
 
         let program = Program::new((5, 5),
                                    vec![W, W, W, W, W,
@@ -151,6 +185,31 @@ mod tests {
                                         W, B, B, B, W,
                                         W, B, B, B, W,
                                         W, W, W, W, W]);
-        assert_eq!(program.color_block((2, 2)), vec![(2, 2)]);
+        assert_eq!(program.color_block((2, 2)), vec![(1, 1), (2, 1), (3, 1),
+                                                     (1, 2), (2, 2), (3, 2),
+                                                     (1, 3), (2, 3), (3, 3)]
+                                                    .into_iter().collect());
+
+        let program = Program::new((5, 5),
+                                   vec![W, W, W, W, W,
+                                        W, B, B, B, W,
+                                        W, B, W, B, W,
+                                        W, B, W, B, W,
+                                        W, W, W, W, W]);
+        assert_eq!(program.color_block((1, 1)), vec![(1, 1), (2, 1), (3, 1),
+                                                     (1, 2),         (3, 2),
+                                                     (1, 3),         (3, 3)]
+                                                    .into_iter().collect());
+
+        let program = Program::new((5, 5),
+                                   vec![W, W, W, W, W,
+                                        W, B, W, B, W,
+                                        W, B, W, B, W,
+                                        W, B, W, B, W,
+                                        W, W, W, W, W]);
+        assert_eq!(program.color_block((1, 1)), vec![(1, 1),
+                                                     (1, 2),
+                                                     (1, 3)]
+                                                    .into_iter().collect());
     }
 }

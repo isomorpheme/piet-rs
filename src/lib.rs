@@ -10,3 +10,4 @@ mod command;
 mod interpreter;
 mod program;
 mod stack;
+mod util;
