@@ -147,7 +147,9 @@ impl Interpreter {
             }
 
             Command::Roll => {
-                unimplemented!();
+                if let (Some(times), Some(depth)) = self.stack.pop2() {
+                    self.stack.roll(depth as usize, times);
+                }
             }
 
             Command::IntIn => {
