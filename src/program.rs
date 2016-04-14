@@ -1,9 +1,7 @@
 use std::collections::HashSet;
 
 use color::Color;
-use util::lift_tuple;
-
-pub type Coords = (usize, usize);
+use util::{Coords, lift_tuple};
 
 pub struct Program {
     size: Coords,

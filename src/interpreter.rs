@@ -1,8 +1,9 @@
 use num::Integer;
 
-use program::Program;
 use command::Command;
+use program::Program;
 use stack::Stack;
+use util::Coords;
 
 #[derive(Debug, Copy, Clone)]
 enum DirectionPointer {
@@ -56,7 +57,7 @@ pub struct Interpreter {
     dp: DirectionPointer,
     cc: CodelChooser,
     stack: Stack,
-    position: (usize, usize),
+    position: Coords,
 }
 
 impl Interpreter {

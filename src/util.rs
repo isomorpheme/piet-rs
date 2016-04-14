@@ -1,3 +1,5 @@
+pub type Coords = (usize, usize);
+
 pub fn lift_tuple<T>(tuple: (Option<T>, Option<T>)) -> Option<(T, T)> {
     let (first, second) = tuple;
 
