@@ -182,7 +182,7 @@ mod tests {
         assert_eq!(stack.pop2(), (None, None));
         assert_eq!(stack, Stack(vec![]));
     }
-     #[test]
+    #[test]
     fn test_stack_roll() {
         let mut stack = Stack(vec![1, 2, 3, 4]);
         stack.roll(2, 1);

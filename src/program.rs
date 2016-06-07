@@ -50,7 +50,8 @@ impl Program {
 
             marked.insert(coords);
 
-            let (x, y) = coords; for neighbor in self.neighbors(coords).iter().filter_map(|&x| x) {
+            let (x, y) = coords;
+            for neighbor in self.neighbors(coords).iter().filter_map(|&x| x) {
                 self.mark_blocks(neighbor, start_color, marked);
             }
         }

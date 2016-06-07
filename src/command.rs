@@ -5,7 +5,7 @@ use self::Command::*;
 pub enum Command {
     NoOp,
 
-    // Stack related.
+    // Stack related
     Push,
     Pop,
     Duplicate,
@@ -53,7 +53,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_from_transition(){
+    fn test_from_transition() {
         assert_eq!(Command::from_transition((0, 0)), Command::NoOp);
         assert_eq!(Command::from_transition((5, 2)), Command::CharOut);
         assert_eq!(Command::from_transition((3, 1)), Command::Pointer);
