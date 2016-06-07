@@ -1,3 +1,6 @@
+use std::cmp::Ordering;
+use std::collections::HashSet;
+
 use num::Integer;
 
 use command::Command;
@@ -5,7 +8,7 @@ use program::Program;
 use stack::Stack;
 use util::Coords;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum DirectionPointer {
     Up,
     Right,
@@ -37,7 +40,7 @@ impl DirectionPointer {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum CodelChooser {
     Left,
     Right,
@@ -58,6 +61,7 @@ pub struct Interpreter {
     cc: CodelChooser,
     stack: Stack,
     position: Coords,
+    last_block: u64,
 }
 
 impl Interpreter {
@@ -68,15 +72,94 @@ impl Interpreter {
             cc: CodelChooser::Left,
             stack: Stack::new(),
             position: (0, 0),
+            last_block: 0,
         }
     }
 
-    pub fn step(&mut self) {
-        unimplemented!();
+    pub fn run(&mut self) {
+        loop {
+            if let Err(_) = self.step() {
+                break;
+            }
+        }
     }
 
-    fn calculate_offset(&self) -> (usize, usize) {
+    pub fn step(&mut self) -> Result<(), ()> {
         unimplemented!()
+    }
+
+    fn current_block(&self) -> HashSet<Coords> {
+        self.program.color_block(self.position)
+    }
+
+    fn next_coords(&self) -> Coords {
+        use self::DirectionPointer as DP;
+        use self::CodelChooser as CC;
+
+        fn x_key(&(x, _): &Coords) -> usize {
+            x
+        }
+        fn y_key(&(_, y): &Coords) -> usize {
+            y
+        }
+
+        let current_block = self.current_block();
+
+        let edge = if self.dp == DP::Up || self.dp == DP::Down {
+            let iter = current_block.iter().map(|&c| c);
+
+            let (_, farthest_y) = match self.dp {
+                DP::Up => iter.min_by_key(y_key),
+                DP::Down => iter.max_by_key(y_key),
+                _ => unreachable!(),
+            }.unwrap(); // We can unwrap here because the current block is never empty.
+
+            current_block.iter()
+                .filter(|&&(x, y)| y == farthest_y)
+                .map(|&y| y)
+                .collect::<Vec<_>>()
+        } else if self.dp == DP::Left || self.dp == DP::Right {
+            let iter = current_block.iter().map(|&c| c);
+
+            let (farthest_x, _) = match self.dp {
+                DP::Left => iter.min_by_key(x_key),
+                DP::Right => iter.max_by_key(x_key),
+                _ => unreachable!(),
+            }.unwrap(); // Same as above.
+
+            current_block.iter()
+                .filter(|&&(x, y)| x == farthest_x)
+                .map(|&x| x)
+                .collect::<Vec<_>>()
+        } else { unreachable!() }.into_iter();
+
+        match self.dp {
+            DP::Left => {
+                match self.cc {
+                    CC::Right => edge.max_by_key(y_key),
+                    CC::Left => edge.min_by_key(y_key),
+                }
+            }
+            DP::Right => {
+                match self.cc {
+                    CC::Right => edge.min_by_key(y_key),
+                    CC::Left => edge.max_by_key(y_key),
+                }
+            }
+            DP::Up => {
+                match self.cc {
+                    CC::Right => edge.max_by_key(x_key),
+                    CC::Left => edge.min_by_key(x_key),
+                }
+            }
+            DP::Down => {
+                match self.cc {
+                    CC::Right => edge.min_by_key(x_key),
+                    CC::Left => edge.max_by_key(x_key),
+                }
+            }
+        }
+        .unwrap() // See above.
     }
 
     fn execute_command(&mut self, command: &Command) {
