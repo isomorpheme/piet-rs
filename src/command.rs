@@ -34,12 +34,14 @@ pub enum Command {
 }
 
 impl Command {
-    const COMMAND_TABLE: [[Command; 3]; 6] = [[NoOp, Push, Pop],
-                                              [Add, Subtract, Multiply],
-                                              [Divide, Mod, Not],
-                                              [Greater, Pointer, Switch],
-                                              [Duplicate, Roll, IntIn],
-                                              [CharIn, IntOut, CharOut]];
+    const COMMAND_TABLE: [[Command; 3]; 6] = [
+        [NoOp, Push, Pop],
+        [Add, Subtract, Multiply],
+        [Divide, Mod, Not],
+        [Greater, Pointer, Switch],
+        [Duplicate, Roll, IntIn],
+        [CharIn, IntOut, CharOut]
+    ];
 
     pub fn from_transition(transition: (u8, u8)) -> Self {
         let (hue, lightness) = transition;

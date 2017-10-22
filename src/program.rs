@@ -50,7 +50,6 @@ impl Program {
 
             marked.insert(coords);
 
-            let (x, y) = coords;
             for neighbor in self.neighbors(coords).iter().filter_map(|&x| x) {
                 self.mark_blocks(neighbor, start_color, marked);
             }
@@ -149,53 +148,68 @@ mod tests {
         use super::super::Color::White as W;
         use super::super::Color::Black as B;
 
-        let program = Program::new((5, 5),
-                                   vec![W, W, W, W, W,
-                                        W, W, W, W, W,
-                                        W, W, B, W, W,
-                                        W, W, W, W, W,
-                                        W, W, W, W, W]);
-        assert_eq!(program.color_block((2, 2)), vec![(2, 2)].into_iter().collect());
+        let mk_prog = |p| Program::new((5, 5), p);
 
-        let program = Program::new((5, 5),
-                                   vec![B, W, W, W, W,
-                                        W, W, W, W, W,
-                                        W, W, W, W, W,
-                                        W, W, W, W, W,
-                                        W, W, W, W, W]);
-        assert_eq!(program.color_block((0, 0)), vec![(0, 0)] .into_iter().collect());
+        let program = mk_prog(vec![
+            W, W, W, W, W,
+            W, W, W, W, W,
+            W, W, B, W, W,
+            W, W, W, W, W,
+            W, W, W, W, W,
+        ]);
+        let block = vec![(2, 2)].into_iter().collect();
+        assert_eq!(program.color_block((2, 2)), block);
 
-        let program = Program::new((5, 5),
-                                   vec![W, W, W, W, W,
-                                        W, B, B, B, W,
-                                        W, B, B, B, W,
-                                        W, B, B, B, W,
-                                        W, W, W, W, W]);
-        assert_eq!(program.color_block((2, 2)), vec![(1, 1), (2, 1), (3, 1),
-                                                     (1, 2), (2, 2), (3, 2),
-                                                     (1, 3), (2, 3), (3, 3)]
-                                                    .into_iter().collect());
+        let program = mk_prog( vec![
+            B, W, W, W, W,
+            W, W, W, W, W,
+            W, W, W, W, W,
+            W, W, W, W, W,
+            W, W, W, W, W,
+        ]);
+        let block = vec![(0, 0)].into_iter().collect();
+        assert_eq!(program.color_block((0, 0)), block);
 
-        let program = Program::new((5, 5),
-                                   vec![W, W, W, W, W,
-                                        W, B, B, B, W,
-                                        W, B, W, B, W,
-                                        W, B, W, B, W,
-                                        W, W, W, W, W]);
-        assert_eq!(program.color_block((1, 1)), vec![(1, 1), (2, 1), (3, 1),
-                                                     (1, 2),         (3, 2),
-                                                     (1, 3),         (3, 3)]
-                                                    .into_iter().collect());
+        let program = mk_prog(vec![
+            W, W, W, W, W,
+            W, B, B, B, W,
+            W, B, B, B, W,
+            W, B, B, B, W,
+            W, W, W, W, W,
+        ]);
+        let block = vec![
+            (1, 1), (2, 1), (3, 1),
+            (1, 2), (2, 2), (3, 2),
+            (1, 3), (2, 3), (3, 3),
+        ].into_iter().collect();
+        assert_eq!(program.color_block((2, 2)), block);
 
-        let program = Program::new((5, 5),
-                                   vec![W, W, W, W, W,
-                                        W, B, W, B, W,
-                                        W, B, W, B, W,
-                                        W, B, W, B, W,
-                                        W, W, W, W, W]);
-        assert_eq!(program.color_block((1, 1)), vec![(1, 1),
-                                                     (1, 2),
-                                                     (1, 3)]
-                                                    .into_iter().collect());
+        let program = mk_prog(vec![
+            W, W, W, W, W,
+            W, B, B, B, W,
+            W, B, W, B, W,
+            W, B, W, B, W,
+            W, W, W, W, W,
+        ]);
+        let block = vec![
+            (1, 1), (2, 1), (3, 1),
+            (1, 2),         (3, 2),
+            (1, 3),         (3, 3),
+        ].into_iter().collect();
+        assert_eq!(program.color_block((1, 1)), block);
+
+        let program = mk_prog(vec![
+            W, W, W, W, W,
+            W, B, W, B, W,
+            W, B, W, B, W,
+            W, B, W, B, W,
+            W, W, W, W, W,
+        ]);
+        let block = vec![
+            (1, 1),
+            (1, 2),
+            (1, 3),
+        ].into_iter().collect();
+        assert_eq!(program.color_block((1, 1)), block);
     }
 }

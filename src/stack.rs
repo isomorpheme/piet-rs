@@ -45,12 +45,13 @@ impl Stack {
                 self.push(function(first, second));
             }
 
+            // TODO: Document this!
             (Some(first), None) => self.push(first),
             _ => {}
         }
     }
 
-    /// Pop the top 2 elements of the tuple, if present.
+    /// Pop the top 2 elements of the stack, if present.
     pub fn pop2(&mut self) -> (Option<i64>, Option<i64>) {
         (self.pop(), self.pop())
     }
