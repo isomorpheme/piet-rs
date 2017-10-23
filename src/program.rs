@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use color::Color;
-use util::{Coords, lift_tuple};
+use util::{Coords, lift_pair};
 
 #[derive(Debug)]
 pub struct Program {
@@ -60,10 +60,10 @@ impl Program {
     fn neighbors(&self, coords: Coords) -> [Option<Coords>; 4] {
         let (x, y) = coords;
 
-        let right = lift_tuple((Some(x + 1), Some(y)));
-        let left = lift_tuple((x.checked_sub(1), Some(y)));
-        let above = lift_tuple((Some(x), Some(y + 1)));
-        let below = lift_tuple((Some(x), y.checked_sub(1)));
+        let right = lift_pair((Some(x + 1), Some(y)));
+        let left = lift_pair((x.checked_sub(1), Some(y)));
+        let above = lift_pair((Some(x), Some(y + 1)));
+        let below = lift_pair((Some(x), y.checked_sub(1)));
 
         // I would have written this with iterators, but AFAIK it's not possible
         // to `.collect()` into a fixed size array.
