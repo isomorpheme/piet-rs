@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use color::Color;
 use util::{Coords, lift_tuple};
 
+#[derive(Debug)]
 pub struct Program {
     size: Coords,
     image: Vec<Color>,
