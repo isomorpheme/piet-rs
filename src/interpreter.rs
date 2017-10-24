@@ -55,6 +55,7 @@ impl CodelChooser {
     }
 }
 
+#[derive(Debug)]
 pub struct Interpreter {
     program: Program,
     dp: DirectionPointer,

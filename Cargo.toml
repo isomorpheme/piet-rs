@@ -1,7 +1,9 @@
 [package]
+authors = ["Daan Rijks <daanrijks@gmail.com>"]
 name = "piet"
 version = "0.1.0"
-authors = ["Daan Rijks <daanrijks@gmail.com>"]
 
 [dependencies]
+clap = "~2.26.2"
+image = "0.17.0"
 num = "0.1.40"
