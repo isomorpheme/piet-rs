@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate error_chain;
 extern crate num;
 
 pub use color::{Color, Hue, Lightness};
@@ -7,6 +9,7 @@ pub use stack::Stack;
 
 mod color;
 mod command;
+mod errors;
 mod interpreter;
 mod program;
 mod stack;

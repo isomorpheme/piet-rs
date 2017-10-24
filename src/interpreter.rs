@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use num::Integer;
 
 use command::Command;
+use errors::*;
 use program::Program;
 use stack::Stack;
 use util::Coords;
@@ -77,15 +78,15 @@ impl Interpreter {
         }
     }
 
-    pub fn run(&mut self) {
-        loop {
-            if let Err(_) = self.step() {
-                break;
-            }
+    pub fn run(&mut self) -> Result<()> {
+        while let Some(result) = self.step() {
+            result?;
         }
+
+        Ok(())
     }
 
-    pub fn step(&mut self) -> Result<(), ()> {
+    pub fn step(&mut self) -> Option<Result<()>> {
         unimplemented!()
     }
 
