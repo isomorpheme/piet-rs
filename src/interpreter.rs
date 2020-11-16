@@ -68,7 +68,7 @@ pub struct Interpreter {
 impl Interpreter {
     pub fn new(program: Program) -> Self {
         Interpreter {
-            program: program,
+            program,
             dp: DirectionPointer::Right,
             cc: CodelChooser::Left,
             stack: Stack::new(),

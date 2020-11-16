@@ -17,8 +17,7 @@ impl Hue {
     /// # Examples
     ///
     /// ```
-    /// use piet::Hue;
-    /// use piet::Hue::*;
+    /// use piet::Hue::{self, *};
     ///
     /// assert_eq!(Hue::shift(Red, Yellow), 1);
     /// assert_eq!(Hue::shift(Red, Magenta), 5);
@@ -42,8 +41,7 @@ impl Lightness {
     /// # Examples
     ///
     /// ```
-    /// use piet::Lightness;
-    /// use piet::Lightness::*;
+    /// use piet::Lightness::{self, *};
     ///
     /// assert_eq!(Lightness::shift(Light, Normal), 1);
     /// assert_eq!(Lightness::shift(Dark, Light), 1);
@@ -67,17 +65,13 @@ impl Color {
     /// # Examples
     ///
     /// ```
-    /// use piet::Color;
-    /// use piet::Hue::*;
-    /// use piet::Lightness::*;
+    /// use piet::{Color, Hue::*, Lightness::*};
     ///
     /// let color = Color::from_rgb(0xc0, 0xc0, 0xff);
     /// assert_eq!(color, Color::Composite(Blue, Light));
     /// ```
-    pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
-        use crate::Color::*;
-        use crate::Hue::*;
-        use crate::Lightness::*;
+    pub const fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+        use crate::{Color::*, Hue::*, Lightness::*};
 
         let (r, g, b) = (r as u32, g as u32, b as u32);
 
@@ -124,9 +118,7 @@ impl Color {
     /// # Examples
     ///
     /// ```
-    /// use piet::Color;
-    /// use piet::Hue::*;
-    /// use piet::Lightness::*;
+    /// use piet::{Color, Hue::*, Lightness::*};
     ///
     /// let a = Color::Composite(Blue, Light);
     /// let b = Color::Composite(Green, Dark);
@@ -134,17 +126,12 @@ impl Color {
     /// assert_eq!(Color::transition(a, b), Some((4, 2)))
     /// ```
     pub fn transition(from: Color, to: Color) -> Option<(u8, u8)> {
-        let (from_h, from_l) = match from {
-            Color::Composite(h, l) => (h, l),
-            _ => return None,
-        };
-
-        let (to_h, to_l) = match to {
-            Color::Composite(h, l) => (h, l),
-            _ => return None,
-        };
-
-        Some((Hue::shift(from_h, to_h), Lightness::shift(from_l, to_l)))
+        match (from, to) {
+            (Color::Composite(from_h, from_l), Color::Composite(to_h, to_l)) => {
+                Some((Hue::shift(from_h, to_h), Lightness::shift(from_l, to_l)))
+            }
+            _ => None,
+        }
     }
 }
 

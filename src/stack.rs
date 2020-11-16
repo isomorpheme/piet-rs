@@ -5,7 +5,7 @@ use std::ops::{Deref, DerefMut};
 pub struct Stack(Vec<i64>);
 
 impl Stack {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Stack(Vec::new())
     }
 

@@ -43,10 +43,10 @@ impl Command {
         [CharIn, IntOut, CharOut],
     ];
 
-    pub fn from_transition(transition: (u8, u8)) -> Self {
+    pub const fn from_transition(transition: (u8, u8)) -> Self {
         let (hue, lightness) = transition;
 
-        Command::COMMAND_TABLE[hue as usize][lightness as usize]
+        Self::COMMAND_TABLE[hue as usize][lightness as usize]
     }
 }
 
