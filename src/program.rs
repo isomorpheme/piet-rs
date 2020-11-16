@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use color::Color;
-use util::{Coords, lift_pair};
+use crate::color::Color;
+use crate::util::{Coords, lift_pair};
 
 #[derive(Debug)]
 pub struct Program {
@@ -75,7 +75,7 @@ impl Program {
 
     fn coords_to_index(&self, coords: Coords) -> Option<usize> {
         let (x, y) = coords;
-        let (width, height) = self.size;
+        let (width, _height) = self.size;
 
         self.check_coords(coords).and(Some(width * y + x % width))
     }

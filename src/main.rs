@@ -20,7 +20,7 @@ fn main() {
     println!("{:?}", matches);
 
     let source_path = matches.value_of("SOURCE").expect("no source supplied");
-    let codel_size = matches.value_of("codel_size").map(|_| unimplemented!());
+    let _codel_size = matches.value_of("codel_size").map(|_| unimplemented!());
 
     let source = image::open(source_path).expect("could not open image");
 

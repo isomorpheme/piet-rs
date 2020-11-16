@@ -2,10 +2,10 @@
 extern crate error_chain;
 extern crate num;
 
-pub use color::{Color, Hue, Lightness};
-pub use interpreter::Interpreter;
-pub use program::Program;
-pub use stack::Stack;
+pub use crate::color::{Color, Hue, Lightness};
+pub use crate::interpreter::Interpreter;
+pub use crate::program::Program;
+pub use crate::stack::Stack;
 
 mod color;
 mod command;

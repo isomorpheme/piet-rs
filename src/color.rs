@@ -75,9 +75,9 @@ impl Color {
     /// assert_eq!(color, Color::Composite(Blue, Light));
     /// ```
     pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
-        use Hue::*;
-        use Lightness::*;
-        use Color::*;
+        use crate::Hue::*;
+        use crate::Lightness::*;
+        use crate::Color::*;
 
         let (r, g, b) = (r as u32, g as u32, b as u32);
 

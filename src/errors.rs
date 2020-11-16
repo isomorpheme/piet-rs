@@ -1,4 +1,4 @@
-use command::Command;
+use crate::command::Command;
 
 error_chain! {
     errors {

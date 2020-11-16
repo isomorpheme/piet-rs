@@ -1,13 +1,13 @@
-use std::cmp::Ordering;
+
 use std::collections::HashSet;
 
 use num::Integer;
 
-use command::Command;
-use errors::*;
-use program::Program;
-use stack::Stack;
-use util::Coords;
+use crate::command::Command;
+use crate::errors::*;
+use crate::program::Program;
+use crate::stack::Stack;
+use crate::util::Coords;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 enum DirectionPointer {
@@ -117,7 +117,7 @@ impl Interpreter {
             }.unwrap(); // We can unwrap here because the current block is never empty.
 
             current_block.iter()
-                .filter(|&&(x, y)| y == farthest_y)
+                .filter(|&&(_x, y)| y == farthest_y)
                 .map(|&y| y)
                 .collect::<Vec<_>>()
         } else if self.dp == DP::Left || self.dp == DP::Right {
@@ -130,7 +130,7 @@ impl Interpreter {
             }.unwrap(); // Same as above.
 
             current_block.iter()
-                .filter(|&&(x, y)| x == farthest_x)
+                .filter(|&&(x, _y)| x == farthest_x)
                 .map(|&x| x)
                 .collect::<Vec<_>>()
         } else { unreachable!() }.into_iter();
