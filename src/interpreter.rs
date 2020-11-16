@@ -1,4 +1,3 @@
-
 use std::collections::HashSet;
 
 use num::Integer;
@@ -95,8 +94,8 @@ impl Interpreter {
     }
 
     fn next_coords(&self) -> Coords {
-        use self::DirectionPointer as DP;
         use self::CodelChooser as CC;
+        use self::DirectionPointer as DP;
 
         fn x_key(&(x, _): &Coords) -> usize {
             x
@@ -114,9 +113,11 @@ impl Interpreter {
                 DP::Up => iter.min_by_key(y_key),
                 DP::Down => iter.max_by_key(y_key),
                 _ => unreachable!(),
-            }.unwrap(); // We can unwrap here because the current block is never empty.
+            }
+            .unwrap(); // We can unwrap here because the current block is never empty.
 
-            current_block.iter()
+            current_block
+                .iter()
                 .filter(|&&(_x, y)| y == farthest_y)
                 .map(|&y| y)
                 .collect::<Vec<_>>()
@@ -127,39 +128,36 @@ impl Interpreter {
                 DP::Left => iter.min_by_key(x_key),
                 DP::Right => iter.max_by_key(x_key),
                 _ => unreachable!(),
-            }.unwrap(); // Same as above.
+            }
+            .unwrap(); // Same as above.
 
-            current_block.iter()
+            current_block
+                .iter()
                 .filter(|&&(x, _y)| x == farthest_x)
                 .map(|&x| x)
                 .collect::<Vec<_>>()
-        } else { unreachable!() }.into_iter();
+        } else {
+            unreachable!()
+        }
+        .into_iter();
 
         match self.dp {
-            DP::Left => {
-                match self.cc {
-                    CC::Right => edge.max_by_key(y_key),
-                    CC::Left => edge.min_by_key(y_key),
-                }
-            }
-            DP::Right => {
-                match self.cc {
-                    CC::Right => edge.min_by_key(y_key),
-                    CC::Left => edge.max_by_key(y_key),
-                }
-            }
-            DP::Up => {
-                match self.cc {
-                    CC::Right => edge.max_by_key(x_key),
-                    CC::Left => edge.min_by_key(x_key),
-                }
-            }
-            DP::Down => {
-                match self.cc {
-                    CC::Right => edge.min_by_key(x_key),
-                    CC::Left => edge.max_by_key(x_key),
-                }
-            }
+            DP::Left => match self.cc {
+                CC::Right => edge.max_by_key(y_key),
+                CC::Left => edge.min_by_key(y_key),
+            },
+            DP::Right => match self.cc {
+                CC::Right => edge.min_by_key(y_key),
+                CC::Left => edge.max_by_key(y_key),
+            },
+            DP::Up => match self.cc {
+                CC::Right => edge.max_by_key(x_key),
+                CC::Left => edge.min_by_key(x_key),
+            },
+            DP::Down => match self.cc {
+                CC::Right => edge.min_by_key(x_key),
+                CC::Left => edge.max_by_key(x_key),
+            },
         }
         .unwrap() // See above.
     }
@@ -196,22 +194,12 @@ impl Interpreter {
 
             Command::Not => {
                 if let Some(value) = self.stack.pop() {
-                    self.stack.push(if value != 0 {
-                        0
-                    } else {
-                        1
-                    });
+                    self.stack.push(if value != 0 { 0 } else { 1 });
                 }
             }
 
             Command::Greater => {
-                self.stack.fold_top(|b, a| {
-                    if a > b {
-                        1
-                    } else {
-                        0
-                    }
-                });
+                self.stack.fold_top(|b, a| if a > b { 1 } else { 0 });
             }
 
             Command::Pointer => {

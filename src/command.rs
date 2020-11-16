@@ -40,7 +40,7 @@ impl Command {
         [Divide, Mod, Not],
         [Greater, Pointer, Switch],
         [Duplicate, Roll, IntIn],
-        [CharIn, IntOut, CharOut]
+        [CharIn, IntOut, CharOut],
     ];
 
     pub fn from_transition(transition: (u8, u8)) -> Self {

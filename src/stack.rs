@@ -19,7 +19,8 @@ impl Stack {
 
     /// Apply a function to the top element on the stack.
     pub fn map_top<F>(&mut self, function: F)
-        where F: Fn(i64) -> i64
+    where
+        F: Fn(i64) -> i64,
     {
         if let Some(reference) = self.last_mut() {
             *reference = function(*reference);
@@ -38,7 +39,8 @@ impl Stack {
     /// assert_eq!(stack, Stack::from_vec(vec![1, 5]));
     /// ```
     pub fn fold_top<F>(&mut self, function: F)
-        where F: Fn(i64, i64) -> i64
+    where
+        F: Fn(i64, i64) -> i64,
     {
         match self.pop2() {
             (Some(first), Some(second)) => {

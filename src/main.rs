@@ -2,11 +2,10 @@
 extern crate clap;
 use image;
 
-
 use image::GenericImage;
 
-use piet::{Color, Interpreter, Program};
 use piet::util;
+use piet::{Color, Interpreter, Program};
 
 fn main() {
     let matches = clap_app!(pieti =>
@@ -15,7 +14,8 @@ fn main() {
         (about: crate_description!())
         (@arg SOURCE: +required "Piet source file")
         (@arg codel_size: --codel_size -c +takes_value "Width & height to read codels at")
-    ).get_matches();
+    )
+    .get_matches();
 
     println!("{:?}", matches);
 
@@ -24,7 +24,8 @@ fn main() {
 
     let source = image::open(source_path).expect("could not open image");
 
-    let colors = source.pixels()
+    let colors = source
+        .pixels()
         .map(|(_, _, p)| Color::from_rgb(p[0], p[1], p[3]))
         .collect();
     let dimensions = util::map_pair(source.dimensions(), |x| x as usize);

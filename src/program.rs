@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::color::Color;
-use crate::util::{Coords, lift_pair};
+use crate::util::{lift_pair, Coords};
 
 #[derive(Debug)]
 pub struct Program {
@@ -67,10 +67,12 @@ impl Program {
 
         // I would have written this with iterators, but AFAIK it's not possible
         // to `.collect()` into a fixed size array.
-        [right.and_then(|c| self.check_coords(c)),
-         left.and_then(|c| self.check_coords(c)),
-         above.and_then(|c| self.check_coords(c)),
-         below.and_then(|c| self.check_coords(c))]
+        [
+            right.and_then(|c| self.check_coords(c)),
+            left.and_then(|c| self.check_coords(c)),
+            above.and_then(|c| self.check_coords(c)),
+            below.and_then(|c| self.check_coords(c)),
+        ]
     }
 
     fn coords_to_index(&self, coords: Coords) -> Option<usize> {

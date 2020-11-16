@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate error_chain;
 
-
 pub use crate::color::{Color, Hue, Lightness};
 pub use crate::interpreter::Interpreter;
 pub use crate::program::Program;
