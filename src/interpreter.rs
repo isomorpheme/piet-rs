@@ -1,7 +1,5 @@
 use std::collections::HashSet;
 
-use num::Integer;
-
 use crate::command::Command;
 use crate::errors::*;
 use crate::program::Program;
@@ -189,7 +187,7 @@ impl Interpreter {
             }
 
             Command::Mod => {
-                self.stack.fold_top(|b, a| a.mod_floor(&b));
+                self.stack.fold_top(|b, a| a.rem_euclid(b));
             }
 
             Command::Not => {

@@ -1,5 +1,3 @@
-use num::Integer;
-
 /// A color's hue.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Hue {
@@ -23,7 +21,7 @@ impl Hue {
     /// assert_eq!(Hue::shift(Red, Magenta), 5);
     /// ```
     pub fn shift(from: Hue, to: Hue) -> u8 {
-        ((to as i8) - (from as i8)).mod_floor(&6) as u8
+        ((to as i8) - (from as i8)).rem_euclid(6) as u8
     }
 }
 
@@ -47,7 +45,7 @@ impl Lightness {
     /// assert_eq!(Lightness::shift(Dark, Light), 1);
     /// ```
     pub fn shift(from: Lightness, to: Lightness) -> u8 {
-        ((to as i8) - (from as i8)).mod_floor(&3) as u8
+        ((to as i8) - (from as i8)).rem_euclid(3) as u8
     }
 }
 
