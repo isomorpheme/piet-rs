@@ -2,6 +2,7 @@
 authors = ["Daan Rijks <daanrijks@gmail.com>"]
 name = "piet"
 version = "0.1.0"
+edition = "2018"
 
 [dependencies]
 clap = "~2.26.2"

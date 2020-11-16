@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate clap;
-extern crate image;
-extern crate piet;
+use image;
+
 
 use image::GenericImage;
 
