@@ -1,28 +1,27 @@
-#[macro_use]
-extern crate clap;
-use image;
+use std::path::PathBuf;
 
-use image::{GenericImage, GenericImageView};
+use image::{self, GenericImageView};
+use structopt::StructOpt;
 
 use piet::util;
 use piet::{Color, Interpreter, Program};
 
+#[derive(Debug, StructOpt)]
+struct Opt {
+    /// Piet source file.
+    ///
+    /// Supported file types: PNG, GIF, BMP.
+    #[structopt(name = "SOURCE", parse(from_os_str))]
+    source_path: PathBuf,
+
+    /// Width & height to read codels at.
+    #[structopt(short, long)]
+    codel_size: usize,
+}
+
 fn main() {
-    let matches = clap_app!(pieti =>
-        (version: crate_version!())
-        (author: crate_authors!())
-        (about: crate_description!())
-        (@arg SOURCE: +required "Piet source file")
-        (@arg codel_size: --codel_size -c +takes_value "Width & height to read codels at")
-    )
-    .get_matches();
-
-    println!("{:?}", matches);
-
-    let source_path = matches.value_of("SOURCE").expect("no source supplied");
-    let _codel_size = matches.value_of("codel_size").map(|_| unimplemented!());
-
-    let source = image::open(source_path).expect("could not open image");
+    let opt = Opt::from_args();
+    let source = image::open(opt.source_path).expect("could not open image");
 
     let colors = source
         .pixels()
