@@ -2,7 +2,7 @@
 extern crate clap;
 use image;
 
-use image::GenericImage;
+use image::{GenericImage, GenericImageView};
 
 use piet::util;
 use piet::{Color, Interpreter, Program};
@@ -26,7 +26,7 @@ fn main() {
 
     let colors = source
         .pixels()
-        .map(|(_, _, p)| Color::from_rgb(p[0], p[1], p[3]))
+        .map(|(_, _, p)| Color::from_rgb(p[0], p[1], p[2]))
         .collect();
     let dimensions = util::map_pair(source.dimensions(), |x| x as usize);
 
